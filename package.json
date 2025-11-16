@@ -1,0 +1,25 @@
+{
+  "name": "6272",
+  "version": "1.0.0",
+  "description": "6272 — современный голосовой чат с комнатами на WebRTC и TURN",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "ws": "^8.18.0",
+    "helmet": "^7.1.0",
+    "express-rate-limit": "^7.4.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.11.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "prettier": "^3.3.3"
+  }
+}
+
+

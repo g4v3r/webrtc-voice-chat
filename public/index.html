@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>6272 — голосовые комнаты</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      }
+
+      body {
+        min-height: 100vh;
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+        background: radial-gradient(circle at top, #1f2937, #020617);
+        color: #e5e7eb;
+        padding: 16px;
+      }
+
+      .layout {
+        width: 100%;
+        max-width: 1040px;
+        display: grid;
+        grid-template-columns: 260px minmax(0, 1fr);
+        gap: 16px;
+      }
+
+      .card {
+        width: 100%;
+        background: rgba(15, 23, 42, 0.95);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+        border: 1px solid rgba(148, 163, 184, 0.2);
+      }
+
+      h1 {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+      }
+
+      .subtitle {
+        font-size: 0.9rem;
+        color: #9ca3af;
+        margin-bottom: 20px;
+      }
+
+      label {
+        display: block;
+        font-size: 0.85rem;
+        margin-bottom: 6px;
+      }
+
+      input {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid #4b5563;
+        background: #020617;
+        color: #e5e7eb;
+        outline: none;
+        font-size: 0.95rem;
+      }
+
+      input:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.6);
+      }
+
+      .row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+
+      button {
+        border: none;
+        border-radius: 999px;
+        padding: 10px 18px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #3b82f6, #6366f1);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        filter: brightness(1.05);
+        transform: translateY(-1px);
+      }
+
+      .btn-secondary {
+        background: rgba(31, 41, 55, 0.9);
+        color: #e5e7eb;
+      }
+
+      .btn-secondary:hover {
+        background: rgba(55, 65, 81, 0.95);
+      }
+
+      .btn-danger {
+        background: #b91c1c;
+        color: white;
+      }
+
+      .btn-danger:hover {
+        background: #dc2626;
+      }
+
+      .status {
+        font-size: 0.85rem;
+        color: #9ca3af;
+        margin-top: 4px;
+        min-height: 18px;
+      }
+
+      .status-online {
+        color: #22c55e;
+      }
+
+      .status-error {
+        color: #f97316;
+      }
+
+      .footer {
+        margin-top: 18px;
+        font-size: 0.8rem;
+        color: #6b7280;
+      }
+
+      .footer code {
+        background: rgba(15, 23, 42, 0.9);
+        padding: 2px 6px;
+        border-radius: 6px;
+        border: 1px solid rgba(31, 41, 55, 0.9);
+      }
+
+      .participants {
+        margin-top: 16px;
+        padding-top: 14px;
+        border-top: 1px solid rgba(31, 41, 55, 0.9);
+        font-size: 0.85rem;
+      }
+
+      .participants-title {
+        margin-bottom: 8px;
+        color: #9ca3af;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      #participantsList {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 14px;
+        margin-top: 4px;
+      }
+
+      .participant-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 8px;
+        padding: 14px 10px 12px;
+        border-radius: 16px;
+        background: radial-gradient(circle at top, #111827, #020617);
+        border: 1px solid rgba(55, 65, 81, 0.9);
+        box-shadow: 0 14px 40px rgba(0, 0, 0, 0.6);
+        min-height: 148px;
+      }
+
+      .participant-dot {
+        width: 72px;
+        height: 72px;
+        border-radius: 999px;
+        background: radial-gradient(circle at 30% 20%, #a855f7, #6366f1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 1rem;
+        color: #fff;
+        box-shadow: 0 0 0 2px rgba(88, 28, 135, 0.6);
+      }
+
+      .participant-name {
+        color: #e5e7eb;
+        text-align: center;
+      }
+
+      .participant-me .participant-name {
+        font-weight: 600;
+      }
+
+      .participant-speaking .participant-dot {
+        box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.8), 0 0 28px rgba(34, 197, 94, 0.7);
+      }
+
+      .participant-muted .participant-dot {
+        box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.8);
+        filter: grayscale(0.2);
+      }
+
+      .participant-meta {
+        font-size: 0.75rem;
+        color: #9ca3af;
+        margin-left: 14px;
+      }
+
+      .participant-ping-bad {
+        color: #f97316;
+      }
+
+      .sidebar-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+
+      .sidebar-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(30, 64, 175, 0.5);
+        margin-bottom: 10px;
+      }
+
+      .sidebar-subtitle {
+        font-size: 0.7rem;
+        color: #6b7280;
+        margin-top: 2px;
+      }
+
+      .sidebar-new-btn {
+        font-size: 0.7rem;
+        padding: 6px 10px;
+        border-radius: 10px;
+        background: rgba(15, 23, 42, 0.95);
+        border: 1px solid rgba(55, 65, 81, 0.9);
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        vertical-align: middle;
+      }
+
+      .icon-sm {
+        width: 14px;
+        height: 14px;
+      }
+
+      .icon-xs {
+        width: 12px;
+        height: 12px;
+      }
+
+      .icon svg {
+        width: 100%;
+        height: 100%;
+      }
+
+      .rooms-list {
+        max-height: calc(100vh - 140px);
+        overflow-y: auto;
+        padding-right: 4px;
+      }
+
+      .rooms-list {
+        max-height: calc(100vh - 160px);
+        overflow-y: auto;
+        padding-right: 4px;
+      }
+
+      .room-item {
+        width: 100%;
+        text-align: left;
+        border-radius: 10px;
+        padding: 8px 10px;
+        border: none;
+        background: transparent;
+        color: #e5e7eb;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        transition: background 0.15s ease, transform 0.05s ease;
+        margin-bottom: 4px;
+      }
+
+      .room-item:hover {
+        background: rgba(31, 41, 55, 0.9);
+        transform: translateY(-1px);
+      }
+
+      .room-item-active {
+        background: rgba(37, 99, 235, 0.18);
+        border: 1px solid rgba(59, 130, 246, 0.7);
+      }
+
+      .room-name-line {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+        font-size: 0.85rem;
+      }
+
+      .room-name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .room-meta {
+        font-size: 0.74rem;
+        color: #9ca3af;
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+
+      .room-lock {
+        font-size: 0.85rem;
+      }
+
+      .settings-btn {
+        margin-left: auto;
+      }
+
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.8);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 50;
+      }
+
+      .modal-overlay.open {
+        display: flex;
+      }
+
+      .modal {
+        width: 100%;
+        max-width: 420px;
+        background: #020617;
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+        border: 1px solid rgba(148, 163, 184, 0.3);
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+
+      .modal-title {
+        font-size: 1rem;
+        font-weight: 600;
+      }
+
+      .modal-close {
+        background: transparent;
+        border-radius: 999px;
+        padding: 4px 10px;
+        color: #9ca3af;
+        font-size: 0.9rem;
+      }
+
+      .modal-close:hover {
+        background: rgba(31, 41, 55, 0.9);
+        color: #e5e7eb;
+      }
+
+      .modal-section-title {
+        font-size: 0.85rem;
+        color: #9ca3af;
+        margin-top: 10px;
+        margin-bottom: 4px;
+      }
+
+      .checkbox-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 4px;
+      }
+
+      .checkbox-row input[type='checkbox'] {
+        width: auto;
+      }
+
+      .helper-text {
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-top: 6px;
+      }
+
+      .bottom-bar {
+        margin-top: 16px;
+        padding-top: 10px;
+        border-top: 1px solid rgba(31, 41, 55, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 0.8rem;
+        color: #9ca3af;
+      }
+
+      .bottom-bar-left {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .bottom-bar-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .bottom-pill {
+        border-radius: 999px;
+        padding: 8px 14px;
+        background: rgba(15, 23, 42, 0.95);
+        border: 1px solid rgba(55, 65, 81, 0.9);
+      }
+
+      .bottom-pill-strong {
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        color: #fff;
+        border-color: transparent;
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 10px;
+        }
+
+        .layout {
+          max-width: 100%;
+          grid-template-columns: 1fr;
+        }
+
+        .rooms-list {
+          max-height: none;
+        }
+
+        .participants {
+          margin-top: 12px;
+        }
+
+        #participantsList {
+          grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        }
+
+        .row {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .bottom-bar {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <div class="card">
+        <div class="sidebar-header">
+          <div>
+            <div class="sidebar-title">
+              <span class="icon icon-sm" style="margin-right: 6px">
+                <i data-lucide="hash"></i>
+              </span>
+              Комнаты
+            </div>
+            <div class="sidebar-subtitle">Голосовые зоны 6272</div>
+          </div>
+        </div>
+        <div class="rooms-list" id="roomsList"></div>
+      </div>
+
+      <div class="card">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px">
+          <h1 style="margin-bottom: 0; display: flex; align-items: center; gap: 8px">
+            <span class="icon icon-sm">
+              <i data-lucide="radio"></i>
+            </span>
+            6272 · Голосовая зона
+          </h1>
+          <button id="btnSettings" class="btn-secondary settings-btn" type="button">Настройки</button>
+        </div>
+        <div class="subtitle">
+          Введите название комнаты и (опционально) пароль. В комнате может быть несколько человек, звук идёт P2P через
+          WebRTC (mesh).
+        </div>
+
+        <div>
+          <label for="roomId">
+            <span class="icon icon-xs" style="margin-right: 4px">
+              <i data-lucide="link-2"></i>
+            </span>
+            ID комнаты
+          </label>
+          <div class="row">
+            <input id="roomId" type="text" placeholder="Например: friends-room-123" />
+            <button id="btnRandom" class="btn-secondary" type="button">Случайно</button>
+          </div>
+        </div>
+
+        <div style="margin-top: 8px">
+          <label for="roomPassword">
+            <span class="icon icon-xs" style="margin-right: 4px">
+              <i data-lucide="key-round"></i>
+            </span>
+            Пароль комнаты (опционально)
+          </label>
+          <input id="roomPassword" type="password" placeholder="Пароль, который нужно знать, чтобы войти" />
+        </div>
+
+        <div class="row" style="margin-top: 8px">
+          <button id="btnJoin" class="btn-primary" type="button">
+            <span class="icon icon-xs">
+              <i data-lucide="check-circle-2"></i>
+            </span>
+            Подключиться
+          </button>
+          <button id="btnLeave" class="btn-danger" type="button" disabled>
+            <span class="icon icon-xs">
+              <i data-lucide="power"></i>
+            </span>
+            Отключиться
+          </button>
+          <button id="btnMute" class="btn-secondary" type="button" disabled>
+            <span class="icon icon-xs">
+              <i data-lucide="mic-off"></i>
+            </span>
+            Микрофон выкл.
+          </button>
+        </div>
+
+        <div id="connectionStatus" class="status">Не подключено</div>
+        <div id="callStatus" class="status"></div>
+        <div id="roomInfo" class="status"></div>
+
+        <div class="participants">
+          <div class="participants-title">
+            <span style="display: inline-flex; align-items: center; gap: 6px">
+              <span class="icon icon-sm">
+                <i data-lucide="users"></i>
+              </span>
+              Участники зоны
+            </span>
+          </div>
+          <div id="participantsList"></div>
+        </div>
+
+        <div class="bottom-bar">
+          <div class="bottom-bar-left">
+            <div style="display: flex; align-items: center; gap: 6px">
+              <span class="icon icon-xs">
+                <i data-lucide="radio"></i>
+              </span>
+              Подключено к серверу 6272.
+            </div>
+            <div>Используйте один и тот же <code>ID комнаты</code> и, при необходимости, <code>пароль</code>.</div>
+          </div>
+          <div class="bottom-bar-right">
+            <div class="bottom-pill" id="globalPing">Пинг: —</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Локальный звук -->
+    <audio id="localAudio" autoplay muted></audio>
+
+    <!-- Контейнер для удалённых участников -->
+    <div id="remoteAudios"></div>
+
+    <!-- Модальное окно настроек -->
+    <div id="settingsOverlay" class="modal-overlay">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title">Настройки</div>
+          <button id="btnCloseSettings" class="modal-close" type="button">Закрыть</button>
+        </div>
+
+        <div>
+          <div class="modal-section-title">Профиль</div>
+          <label for="nicknameInput">Ваш ник</label>
+          <div class="row" style="margin-bottom: 0">
+            <input id="nicknameInput" type="text" placeholder="Например: Alex" />
+            <button id="btnSetNickname" class="btn-secondary" type="button">Обновить ник</button>
+          </div>
+          <div class="helper-text">
+            Ник видят все участники комнаты. Его можно менять в любой момент, изменения сохраняются автоматически.
+          </div>
+        </div>
+
+        <div>
+          <div class="modal-section-title" style="margin-top: 12px">Звук</div>
+          <div class="checkbox-row">
+            <input id="chkEchoCancellation" type="checkbox" />
+            <label for="chkEchoCancellation">Эхоподавление</label>
+          </div>
+          <div class="checkbox-row">
+            <input id="chkNoiseSuppression" type="checkbox" />
+            <label for="chkNoiseSuppression">Шумоподавление</label>
+          </div>
+          <div class="checkbox-row">
+            <input id="chkAutoGain" type="checkbox" />
+            <label for="chkAutoGain">Авто‑гейн (автоматический уровень громкости)</label>
+          </div>
+          <div class="helper-text">
+            Эти настройки применяются к вашему микрофону. При изменении мы автоматически пересоздадим аудиопоток и
+            обновим его у всех соединений. Настройки сохраняются в этом браузере.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="client.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+          window.lucide.createIcons();
+        }
+      });
+    </script>
+  </body>
+  </html>
+
+
