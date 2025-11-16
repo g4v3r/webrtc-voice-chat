@@ -11,9 +11,10 @@ import {
   connectToPeer,
   handleSignal,
   cleanupPeerConnectionsOnly,
-  closePeerConnection,
   removeRemoteAudio,
   setCurrentClientId,
+  hasPeerConnection,
+  getPeerConnectionIds,
 } from './webrtc.js';
 
 const roomInput = document.getElementById('roomId');
@@ -317,16 +318,15 @@ async function startConnection(roomId, password) {
             // оффер всегда инициирует участник с МЕНЬШИМ clientId.
             if (
               p.clientId !== myClientId &&
-              !peerConnections[p.clientId] &&
+              !hasPeerConnection(p.clientId) &&
               String(myClientId) < String(p.clientId)
             ) {
               connectToPeer(p.clientId);
             }
           }
-          // закрываем peerConnections, которых больше нет в комнате
-          Object.keys(peerConnections).forEach((peerId) => {
+          // закрываем соединения, которых больше нет в комнате
+          getPeerConnectionIds().forEach((peerId) => {
             if (!activeIds.has(peerId)) {
-              closePeerConnection(peerId);
               removeRemoteAudio(peerId);
             }
           });
@@ -406,7 +406,7 @@ function cleanup() {
 
   wasKicked = false;
 
-  Object.keys(peerConnections).forEach((peerId) => removeRemoteAudio(peerId));
+  getPeerConnectionIds().forEach((peerId) => removeRemoteAudio(peerId));
 
   // очищаем список участников и UI
   Object.keys(participants).forEach((id) => {

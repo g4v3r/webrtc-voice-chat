@@ -196,6 +196,14 @@ function closePeerConnection(peerId) {
   }
 }
 
+function hasPeerConnection(peerId) {
+  return !!peerConnections[peerId];
+}
+
+function getPeerConnectionIds() {
+  return Object.keys(peerConnections);
+}
+
 function attachRemoteStream(peerId, stream) {
   if (!remoteAudiosContainerEl) return;
   let audio = remoteAudiosContainerEl.querySelector(`audio[data-peer-id="${peerId}"]`);
@@ -327,6 +335,8 @@ export {
   closePeerConnection,
   removeRemoteAudio,
   setCurrentClientId,
+  hasPeerConnection,
+  getPeerConnectionIds,
 };
 
 
