@@ -252,6 +252,13 @@ function cleanupPeerConnectionsOnly() {
   });
 }
 
+function setMuted(isMuted) {
+  if (!localStream) return;
+  localStream.getAudioTracks().forEach((t) => {
+    t.enabled = !isMuted;
+  });
+}
+
 function setAudioCodecPreferences(pc) {
   if (!window.RTCRtpSender || !RTCRtpSender.getCapabilities) return;
   const capabilities = RTCRtpSender.getCapabilities('audio');
@@ -337,6 +344,7 @@ export {
   setCurrentClientId,
   hasPeerConnection,
   getPeerConnectionIds,
+  setMuted,
 };
 
 

@@ -15,6 +15,7 @@ import {
   setCurrentClientId,
   hasPeerConnection,
   getPeerConnectionIds,
+  setMuted,
 } from './webrtc.js';
 
 const roomInput = document.getElementById('roomId');
@@ -234,11 +235,8 @@ btnLeave.addEventListener('click', () => {
 });
 
 btnMute.addEventListener('click', () => {
-  if (!localStream) return;
   isMuted = !isMuted;
-  localStream.getAudioTracks().forEach((t) => {
-    t.enabled = !isMuted;
-  });
+  setMuted(isMuted);
   btnMute.textContent = isMuted ? 'Микрофон вкл.' : 'Микрофон выкл.';
    if (ws && ws.readyState === WebSocket.OPEN && currentRoomId && myClientId) {
     sendState();
